@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Position Size Calculator</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary-color: #64748b;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --background-color: #f8fafc;
+            --card-background: #ffffff;
+            --border-color: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--success-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .card {
+            background: var(--card-background);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            background-color: #fff;
+        }
+
+        .form-input[type="number"] {
+            background-color: #F0FFF4; /* Mint green background for numerical inputs */
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-input:invalid {
+            border-color: var(--danger-color);
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            background-color: #fff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+        
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .slider-group {
+            display: flex;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .slider-container {
+            flex: 1;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--border-color);
+            outline: none;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            background: var(--primary-hover);
+            transform: scale(1.1);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .slider-input {
+            width: 80px;
+            text-align: center;
+        }
+
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .preset-btn {
+            padding: 0.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            background: #fff;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .preset-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .preset-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .results-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .result-item {
+            padding: 1rem;
+            border-radius: 8px;
+            border: 2px solid var(--border-color);
+            background: #fff;
+            transition: all 0.2s ease;
+        }
+
+        .result-item.alert {
+            border-color: var(--danger-color);
+            background: #fef2f2;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.9; }
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+
+        .result-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .result-item.alert .result-value {
+            color: var(--danger-color);
+        }
+
+        .alert-section {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            background: #fef2f2;
+            border: 2px solid var(--danger-color);
+            display: none;
+        }
+
+        .alert-section.show {
+            display: block;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            color: var(--danger-color);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .alert-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .alert-list li {
+            color: var(--danger-color);
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            .slider-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .slider-input {
+                width: 100%;
+            }
+
+            .preset-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.75rem;
+            }
+            
+            .card {
+                padding: 1rem;
+            }
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            :root {
+                --border-color: #000;
+                --text-secondary: #000;
+            }
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Focus styles for keyboard navigation */
+        .preset-btn:focus,
+        .form-input:focus,
+        .form-select:focus,
+        .slider:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Position Size Calculator</h1>
+            <p>Calculate optimal position sizes for stock entries with risk management</p>
+        </header>
+
+        <main class="main-grid">
+            <section class="card">
+                <h2>
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                    </svg>
+                    Input Parameters
+                </h2>
+                
+                <div class="form-group">
+                    <label for="accountBalance" class="form-label">Account Balance ($)</label>
+                    <input type="number" id="accountBalance" class="form-input" value="100000" min="0" step="0.01" aria-describedby="accountBalance-desc">
+                    <small id="accountBalance-desc" class="form-help">Gross account balance minus VOO market value</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="vooValue" class="form-label">VOO Market Value ($)</label>
+                    <input type="number" id="vooValue" class="form-input" value="0" min="0" step="0.01" aria-describedby="vooValue-desc">
+                    <small id="vooValue-desc" class="form-help">Current market value of VOO holdings</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="tuningFactor" class="form-label">Tuning Factor</label>
+                    <div class="slider-group">
+                        <div class="slider-container">
+                            <input type="range" id="tuningFactorSlider" class="slider" min="0.5" max="1" step="0.01" value="0.9" aria-describedby="tuningFactor-desc">
+                        </div>
+                        <input type="number" id="tuningFactor" class="form-input slider-input" min="0.5" max="1" step="0.01" value="0.9">
+                    </div>
+                    <small id="tuningFactor-desc" class="form-help">Adjusts account balance to realistic value (0.5 - 1.0)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="mdd" class="form-label">Max Drawdown per Trade (%)</label>
+                    <div class="slider-group">
+                        <div class="slider-container">
+                            <input type="range" id="mddSlider" class="slider" min="0" max="2" step="0.01" value="0.4" aria-describedby="mdd-desc">
+                        </div>
+                        <input type="number" id="mdd" class="form-input slider-input" min="0" max="2" step="0.01" value="0.8">
+                    </div>
+                    <div class="preset-buttons">
+                        <button type="button" class="preset-btn" data-value="1" aria-label="Set MDD to 1% for easier market">Easier (1%)</button>
+                        <button type="button" class="preset-btn active" data-value="0.8" aria-label="Set MDD to 0.8% for normal market">Normal (0.8%)</button>
+                        <button type="button" class="preset-btn" data-value="0.55" aria-label="Set MDD to 0.55% for harder market">Harder (0.55%)</button>
+                        <button type="button" class="preset-btn" data-value="0.3" aria-label="Set MDD to 0.3% for hell market">Hell (0.3%)</button>
+                    </div>
+                    <small id="mdd-desc" class="form-help">Maximum acceptable loss per trade (0% - 2%)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="stopLoss" class="form-label">% to Stop Loss</label>
+                    <div class="slider-group">
+                        <div class="slider-container">
+                            <input type="range" id="stopLossSlider" class="slider" min="0" max="10" step="0.1" value="5" aria-describedby="stopLoss-desc">
+                        </div>
+                        <input type="number" id="stopLoss" class="form-input slider-input" min="0" max="10" step="0.1" value="5">
+                    </div>
+                    <small id="stopLoss-desc" class="form-help">Distance to stop loss from entry (0% - 10%)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="stockPrice" class="form-label">Stock Price ($)</label>
+                    <input type="number" id="stockPrice" class="form-input" value="100" min="0.001" step="0.001" aria-describedby="stockPrice-desc">
+                    <small id="stockPrice-desc" class="form-help">Current stock price for position calculation</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="positionType" class="form-label">Position Type</label>
+                    <div class="select-wrapper">
+                        <select id="positionType" class="form-select" aria-describedby="positionType-desc">
+                            <option value="long">Long Position</option>
+                            <option value="short">Short Position</option>
+                        </select>
+                    </div>
+                    <small id="positionType-desc" class="form-help">Select long or short position type</small>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 00-2-2z"/>
+                    </svg>
+                    Calculation Results
+                </h2>
+                
+                <div class="results-grid">
+                    <div class="result-item" id="mddPerTrade">
+                        <div class="result-label">Max Drawdown per Trade ($)</div>
+                        <div class="result-value" id="mddPerTradeValue">0</div>
+                    </div>
+
+                    <div class="result-item" id="positionSizePercent">
+                        <div class="result-label">Position Size (%)</div>
+                        <div class="result-value" id="positionSizePercentValue">8.00%</div>
+                    </div>
+                    
+                    <div class="result-item" id="positionSizeDollar">
+                        <div class="result-label">Position Size ($)</div>
+                        <div class="result-value" id="positionSizeDollarValue">$7,200.00</div>
+                    </div>
+                    
+                    <div class="result-item" id="numberOfShares">
+                        <div class="result-label">Number of Shares</div>
+                        <div class="result-value" id="numberOfSharesValue">72</div>
+                    </div>
+                </div>
+
+
+                <div class="alert-section" id="alertSection">
+                    <div class="alert-title">⚠️ Risk Alerts</div>
+                    <ul class="alert-list" id="alertList"></ul>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // DOM elements
+        const accountBalance = document.getElementById('accountBalance');
+        const vooValue = document.getElementById('vooValue');
+        const tuningFactor = document.getElementById('tuningFactor');
+        const tuningFactorSlider = document.getElementById('tuningFactorSlider');
+        const mdd = document.getElementById('mdd');
+        const mddSlider = document.getElementById('mddSlider');
+        const stopLoss = document.getElementById('stopLoss');
+        const stopLossSlider = document.getElementById('stopLossSlider');
+        const stockPrice = document.getElementById('stockPrice');
+        const positionType = document.getElementById('positionType');
+        
+        // Result elements
+        const positionSizePercentValue = document.getElementById('positionSizePercentValue');
+        const positionSizeDollarValue = document.getElementById('positionSizeDollarValue');
+        const numberOfSharesValue = document.getElementById('numberOfSharesValue');
+        const mddPerTradeValue = document.getElementById('mddPerTradeValue');
+
+        // Alert elements
+        const alertSection = document.getElementById('alertSection');
+        const alertList = document.getElementById('alertList');
+        const positionSizePercentElement = document.getElementById('positionSizePercent');
+        const positionSizeDollarElement = document.getElementById('positionSizeDollar');
+        const numberOfSharesElement = document.getElementById('numberOfShares');
+        const mddPerTradeElement = document.getElementById('mddPerTrade');
+        // Preset buttons
+        const presetButtons = document.querySelectorAll('.preset-btn');
+
+        // Sync sliders with inputs
+        function syncSliders() {
+            tuningFactorSlider.addEventListener('input', () => {
+                tuningFactor.value = tuningFactorSlider.value;
+                calculate();
+            });
+
+            tuningFactor.addEventListener('input', () => {
+                tuningFactorSlider.value = tuningFactor.value;
+                calculate();
+            });
+
+            mddSlider.addEventListener('input', () => {
+                mdd.value = mddSlider.value;
+                updatePresetButtons();
+                calculate();
+            });
+
+            mdd.addEventListener('input', () => {
+                mddSlider.value = mdd.value;
+                updatePresetButtons();
+                calculate();
+            });
+
+            stopLossSlider.addEventListener('input', () => {
+                stopLoss.value = stopLossSlider.value;
+                calculate();
+            });
+
+            stopLoss.addEventListener('input', () => {
+                stopLossSlider.value = stopLoss.value;
+                calculate();
+            });
+        }
+
+        // Preset button functionality
+        function setupPresetButtons() {
+            presetButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const value = parseFloat(btn.dataset.value);
+                    mdd.value = value;
+                    mddSlider.value = value;
+                    updatePresetButtons();
+                    calculate();
+                });
+            });
+        }
+
+        function updatePresetButtons() {
+            const currentValue = parseFloat(mdd.value);
+            presetButtons.forEach(btn => {
+                const btnValue = parseFloat(btn.dataset.value);
+                if (Math.abs(btnValue - currentValue) < 0.01) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        // Calculation function
+        function calculate() {
+            const balance = parseFloat(accountBalance.value) || 0;
+            const voo = parseFloat(vooValue.value) || 0;
+            const tuning = parseFloat(tuningFactor.value) || 0.9;
+            const mddValue = parseFloat(mdd.value) || 0;
+            const stopLossValue = parseFloat(stopLoss.value) || 1;
+            const price = parseFloat(stockPrice.value) || 1;
+
+            // Prevent division by zero
+            if (stopLossValue === 0) {
+                positionSizePercentValue.textContent = '0.00%';
+                positionSizeDollarValue.textContent = '$0.00';
+                numberOfSharesValue.textContent = '0';
+                return;
+            }
+
+            // Calculations
+            const adjustedBalance = (balance - voo) * tuning;
+            const positionSizePercent = (mddValue / stopLossValue) * 100;
+            const positionSizeDollar = (mddValue * adjustedBalance) / stopLossValue;
+            const numberOfShares = Math.floor(positionSizeDollar / price);
+            const mddDollar = mddValue * adjustedBalance*0.01;
+
+             // Update display
+            positionSizePercentValue.textContent = positionSizePercent.toFixed(2) + '%';
+            positionSizeDollarValue.textContent = '$' + positionSizeDollar.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            numberOfSharesValue.textContent = numberOfShares.toLocaleString();
+            mddPerTradeValue.textContent = '$' + mddDollar.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            // Check for alerts
+            checkAlerts(positionSizePercent, mddValue, stopLossValue);
+        }
+
+        // Alert checking function
+        function checkAlerts(positionSizePercent, mddValue, stopLossValue) {
+            const alerts = [];
+
+            // Remove existing alert classes
+            [positionSizePercentElement, positionSizeDollarElement, numberOfSharesElement].forEach(el => {
+                el.classList.remove('alert');
+            });
+
+            // Check conditions
+            if (positionSizePercent >= 30) {
+                alerts.push('Position size ≥ 30% - High risk exposure');
+                positionSizePercentElement.classList.add('alert');
+            }
+
+            if (mddValue > 1) {
+                alerts.push('Max drawdown > 1% - Excessive risk per trade');
+            }
+
+            if (stopLossValue >= 7) {
+                alerts.push('Stop loss distance ≥ 7% - Wide stop loss');
+            }
+
+            // Update alert section
+            if (alerts.length > 0) {
+                alertList.innerHTML = alerts.map(alert => `<li>• ${alert}</li>`).join('');
+                alertSection.classList.add('show');
+            } else {
+                alertSection.classList.remove('show');
+            }
+        }
+
+        // Event listeners for all inputs
+        function setupEventListeners() {
+            [accountBalance, vooValue, tuningFactor, mdd, stopLoss, stockPrice, positionType].forEach(input => {
+                input.addEventListener('input', calculate);
+            });
+        }
+
+        // Initialize
+        function init() {
+            syncSliders();
+            setupPresetButtons();
+            setupEventListeners();
+            updatePresetButtons();
+            calculate();
+        }
+
+        // Start the application
+        init();
+    </script>
+</body>
+</html>
